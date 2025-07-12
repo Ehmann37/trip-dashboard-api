@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";
-$username = "s24103435_trip-api";
-$password = "api-trip";
-$dbname = "s24103435_trip-api";
+$username = "s24103754_trip-dashboard-api";
+$password = "dashboard-api";
+$dbname = "s24103754_trip-dashboard-api";
 
 try {
     $dsn = "mysql:host=$servername;dbname=$dbname;charset=utf8mb4";
