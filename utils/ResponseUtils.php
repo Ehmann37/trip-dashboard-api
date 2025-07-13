@@ -7,6 +7,7 @@ function respond($code, $message, $data = null){
       'message' => $message,
       'data' => $data
   ]);
+  exit;
 }
 
 

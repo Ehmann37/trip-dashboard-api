@@ -9,26 +9,21 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'POST':
-        $data = getRequestBody();
-        $response = loginController($data);
-        http_response_code($response['status']);
-        echo json_encode($response['body']);
+        handleLoginRequest();
         break;
 
     case 'GET':
-        if (isset($_GET['action']) && $_GET['action'] === 'logout') {
-            session_start();
-            $response = logoutController();
-        } else {
-            session_start();
-            $response = sessionCheckController();
-        }
+        session_start();
 
-        http_response_code($response['status']);
-        echo json_encode($response['body']);
+        $action = $_GET['action'] ?? null;
+
+        if ($action === 'logout') {
+            handleLogout();
+        } else {
+            handleSessionCheck();
+        }
         break;
 
     default:
-        http_response_code(405);
-        echo json_encode(['error' => 'Method Not Allowed']);
+        respond(405, 'Method Not Allowed');
 }

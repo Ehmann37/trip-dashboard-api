@@ -1,16 +1,17 @@
 <?php
 require_once __DIR__ . '/../models/UserModel.php';
+require_once __DIR__ . '/../../utils/ResponseUtils.php';
 
-function loginController($data) {
+
+function handleLoginRequest() {
+    $data = sanitizeInput(getRequestBody());
+
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
 
     if (!isset($data['email'], $data['password'])) {
-        return [
-            'status' => 400,
-            'body' => ['success' => false, 'message' => 'Missing email or password']
-        ];
+        respond(200, 'Missing email or password');
     }
 
     $email = trim($data['email']);
@@ -23,26 +24,19 @@ function loginController($data) {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['email'] = $user['email'];
 
-        return [
-            'status' => 200,
-            'body' => [
-                'success' => true,
-                'message' => 'Login successful',
-                'user' => [
-                    'id' => $user['user_id'],
-                    'email' => $user['email']
-                ]
+
+        respond(200, 'Login successful', [
+            'user' => [
+                'id' => $user['user_id'],
+                'email' => $user['email']
             ]
-        ];
+        ]);
     }
 
-    return [
-        'status' => 401,
-        'body' => ['success' => false, 'message' => 'Invalid email or password']
-    ];
+    respond(200, 'Invalid email or password');
 }
 
-function logoutController() {
+function handleLogout() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
@@ -64,29 +58,20 @@ function logoutController() {
 
     session_destroy();
 
-    return [
-        'status' => 200,
-        'body' => ['success' => true, 'message' => 'Logged out']
-    ];
+    respond(200, 'Logged out successfully', ['success' => true]);
 }
 
-function sessionCheckController() {
+function handleSessionCheck() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
 
     if (isset($_SESSION['user_id'])) {
-        return [
-            'status' => 200,
-            'body' => [
-                'loggedIn' => true,
-                'email' => $_SESSION['email']
-            ]
-        ];
+        respond(200, 'User is logged in', [
+            'loggedIn' => true,
+            'email' => $_SESSION['email']
+        ]);
+    } else {
+        respond(200, 'User is not logged in', ['loggedIn' => false]);
     }
-
-    return [
-        'status' => 200,
-        'body' => ['loggedIn' => false]
-    ];
 }

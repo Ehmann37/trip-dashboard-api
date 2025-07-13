@@ -30,7 +30,6 @@ function handleGetBus($queryParams) {
 function updateBusHandler($id) {
     if ($id === null) {
         respond(400, 'Missing bus ID');
-        return;
     }
 
     $data = sanitizeInput(getRequestBody());
@@ -38,7 +37,6 @@ function updateBusHandler($id) {
     $allowed = ['route_id', 'driver_id', 'conductor_id', 'status'];
     if (!validateAtLeastOneField($data, $allowed)) {
       respond(400, 'No valid fields provided for update');
-      return;
     }
 
     try {
