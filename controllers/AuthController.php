@@ -1,38 +1,42 @@
 <?php
-require_once __DIR__ . '/../models/UserModel.php';
+require_once __DIR__ . '/../models/AuthModel.php';
 require_once __DIR__ . '/../utils/ResponseUtils.php';
+require_once __DIR__ . '/../config/db.php';
 
 function handleLoginRequest() {
+    global $pdo;
+
     $data = sanitizeInput(getRequestBody());
 
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-
-    if (!isset($data['email'], $data['password'])) {
-        respond(400, 'Missing email or password');
+    if (empty($data['email']) || empty($data['password'])) {
+        respond(200, 'Missing email or password');
         return;
     }
 
     $email = trim($data['email']);
     $password = trim($data['password']);
 
-    $user = findUserByEmail($email);
+    $user = getUserByEmail($email);
 
     if ($user && password_verify($password, $user['hashed_password'])) {
-        session_regenerate_id(true);
-        $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['name'] = $user['name'] ?? '';
-        $_SESSION['email'] = $user['email'];
-        $_SESSION['company_id'] = $user['company_id'] ?? null;
-        $_SESSION['created_at'] = $user['created_at'] ?? null;
+        $token = generateJWT([
+            'sub' => $user['user_id'],
+            'email' => $user['email']
+        ]);
+
+        $stmt = $pdo->prepare("UPDATE users SET token = :token WHERE user_id = :id");
+        $stmt->execute([
+            ':token' => $token,
+            ':id'    => $user['user_id']
+        ]);
 
         $responseUser = [
             'user_id' => $user['user_id'],
             'name' => $user['name'],
             'email' => $user['email'],
             'company_id' => $user['company_id'],
-            'created_at' => $user['created_at']
+            'created_at' => $user['created_at'],
+            'token' => $token
         ];
 
         respond(200, 'Login successful', $responseUser);
@@ -42,47 +46,65 @@ function handleLoginRequest() {
     respond(200, 'Invalid sign-in credentials');
 }
 
-function handleLogout() {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+function handleSessionCheck($token) {
+    global $pdo;
+
+    $payload = verifyJWT($token);
+    if (!$payload) {
+        respond(200, 'Invalid or expired token');
+        return;
     }
 
-    $_SESSION = [];
-
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(
-            session_name(),
-            '',
-            time() - 42000,
-            $params["path"],
-            $params["domain"],
-            $params["secure"],
-            $params["httponly"]
-        );
+    $user = getUserByToken($token);
+    if (!$user) {
+        respond(200, 'Token not found or revoked');
+        return;
     }
 
-    session_destroy();
+    $responseUser = [
+        'user_id' => $user['user_id'],
+        'name' => $user['name'],
+        'email' => $user['email'],
+        'company_id' => $user['company_id'],
+        'created_at' => $user['created_at']
+    ];
 
-    respond(200, 'Logged out successfully');
+    respond(200, 'User is authenticated', $responseUser);
 }
 
-function handleSessionCheck() {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+function generateJWT(array $payload, int $exp = 86200): string {
+    $header = base64UrlEncode(json_encode(['typ' => 'JWT', 'alg' => 'HS256']));
+    $iat = time();
+    $payload = base64UrlEncode(json_encode($payload + [
+        'iat' => $iat,
+        'exp' => $iat + $exp
+    ]));
 
-    if (isset($_SESSION['user_id'])) {
-        $user = [
-            'user_id' => $_SESSION['user_id'],
-            'name' => $_SESSION['name'] ?? '',
-            'email' => $_SESSION['email'],
-            'company_id' => $_SESSION['company_id'] ?? null,
-            'created_at' => $_SESSION['created_at'] ?? null
-        ];
+    $signature = hash_hmac(
+        'sha256',
+        "$header.$payload",
+        $_ENV['JWT_SECRET'],
+        true
+    );
 
-        respond(200, 'User is logged in', $user);
-    } else {
-        respond(200, 'User is not logged in', ['loggedIn' => false]);
-    }
+    return "$header.$payload." . base64UrlEncode($signature);
+}
+
+function verifyJWT(string $token): ?array {
+    $parts = explode('.', $token);
+    if (count($parts) !== 3) return null;
+
+    [$header, $payload, $signature] = $parts;
+    $expectedSig = base64UrlEncode(hash_hmac('sha256', "$header.$payload", $_ENV['JWT_SECRET'], true));
+
+    if (!hash_equals($expectedSig, $signature)) return null;
+
+    $data = json_decode(base64_decode($payload), true);
+    if (!$data || time() > $data['exp']) return null;
+
+    return $data;
+}
+
+function base64UrlEncode(string $data): string {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
