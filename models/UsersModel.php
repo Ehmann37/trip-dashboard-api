@@ -41,3 +41,33 @@ function emailExists(string $email, int $excludeUserId): bool {
 
     return $stmt->fetchColumn() > 0;
 }
+
+function getHashedPasswordById(int $user_id): ?string {
+    global $pdo;
+
+    $stmt = $pdo->prepare("SELECT hashed_password FROM users WHERE user_id = :id");
+    $stmt->execute([':id' => $user_id]);
+    return $stmt->fetchColumn() ?: null;
+}
+
+function validatePasswordChange(int $user_id, string $currentPass, string $newPass, string $confirmNew): array {
+    $currentHashed = getHashedPasswordById($user_id);
+
+    if (!$currentHashed || !password_verify($currentPass, $currentHashed)) {
+        return ['success' => false, 'message' => 'Current password is incorrect'];
+    }
+
+    if (password_verify($newPass, $currentHashed)) {
+        return ['success' => false, 'message' => 'New password must be different from current password'];
+    }
+
+    if (strlen($newPass) < 8) {
+        return ['success' => false, 'message' => 'New password must be at least 8 characters'];
+    }
+
+    if ($newPass !== $confirmNew) {
+        return ['success' => false, 'message' => 'New password and confirmation do not match'];
+    }
+
+    return ['success' => true, 'hashed_password' => password_hash($newPass, PASSWORD_DEFAULT)];
+}

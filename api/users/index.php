@@ -11,7 +11,7 @@ switch ($method) {
         handleGetProfile();
         break;
 
-    case 'POST':
+    case 'PUT':
         handleUpdateProfile();
         break;
 
