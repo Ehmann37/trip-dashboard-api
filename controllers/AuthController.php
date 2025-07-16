@@ -21,7 +21,8 @@ function handleLoginRequest() {
     if ($user && password_verify($password, $user['hashed_password'])) {
         $token = generateJWT([
             'sub' => $user['user_id'],
-            'email' => $user['email']
+            'email' => $user['email'],
+            'role' => $user['role']
         ]);
 
         $stmt = $pdo->prepare("UPDATE users SET token = :token WHERE user_id = :id");
@@ -31,12 +32,13 @@ function handleLoginRequest() {
         ]);
 
         $responseUser = [
-            'user_id' => $user['user_id'],
-            'name' => $user['name'],
-            'email' => $user['email'],
+            'user_id'    => $user['user_id'],
+            'name'       => $user['name'],
+            'email'      => $user['email'],
             'company_id' => $user['company_id'],
+            'role'       => $user['role'],
             'created_at' => $user['created_at'],
-            'token' => $token
+            'token'      => $token
         ];
 
         respond(200, 'Login successful', $responseUser);
@@ -62,10 +64,11 @@ function handleSessionCheck($token) {
     }
 
     $responseUser = [
-        'user_id' => $user['user_id'],
-        'name' => $user['name'],
-        'email' => $user['email'],
+        'user_id'    => $user['user_id'],
+        'name'       => $user['name'],
+        'email'      => $user['email'],
         'company_id' => $user['company_id'],
+        'role'       => $user['role'],
         'created_at' => $user['created_at']
     ];
 
