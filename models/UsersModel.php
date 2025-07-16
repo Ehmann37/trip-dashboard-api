@@ -50,7 +50,7 @@ function getHashedPasswordById(int $user_id): ?string {
     return $stmt->fetchColumn() ?: null;
 }
 
-function validatePasswordChange(int $user_id, string $currentPass, string $newPass, string $confirmNew): array {
+function validatePasswordChange(int $user_id, string $currentPass, string $newPass): array {
     $currentHashed = getHashedPasswordById($user_id);
 
     if (!$currentHashed || !password_verify($currentPass, $currentHashed)) {
@@ -65,9 +65,7 @@ function validatePasswordChange(int $user_id, string $currentPass, string $newPa
         return ['success' => false, 'message' => 'New password must be at least 8 characters'];
     }
 
-    if ($newPass !== $confirmNew) {
-        return ['success' => false, 'message' => 'New password and confirmation do not match'];
-    }
+    
 
     return ['success' => true, 'hashed_password' => password_hash($newPass, PASSWORD_DEFAULT)];
 }

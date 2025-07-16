@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/TripModel.php';
 require_once __DIR__ . '/../models/TicketModel.php';
-require_once __DIR__ . '/../models/BusModel.php';
 require_once __DIR__ . '/../utils/ValidationUtils.php'; 
 require_once __DIR__ . '/../utils/ResponseUtils.php';
 require_once __DIR__ . '/../utils/RequestUtils.php';

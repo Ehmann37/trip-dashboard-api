@@ -36,12 +36,11 @@ function handleUpdateProfile() {
         $fields['email'] = $email;
     }
 
-    if (isset($data['current_password'], $data['new_password'], $data['confirm_new_password'])) {
+    if (isset($data['current_password'], $data['new_password'])) {
         $currentPass = trim($data['current_password']);
         $newPass = trim($data['new_password']);
-        $confirmNew = trim($data['confirm_new_password']);
 
-        $passwordValidation = validatePasswordChange($user_id, $currentPass, $newPass, $confirmNew);
+        $passwordValidation = validatePasswordChange($user_id, $currentPass, $newPass);
         if (!$passwordValidation['success']) {
             respond('01', $passwordValidation['message']);
             return;
