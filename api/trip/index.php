@@ -12,10 +12,7 @@ switch($method) {
   case 'POST':
     handleCreateTrip();
     break;
-  case 'PUT':
-    handleUpdateTripStatus();
-    break;
 
   default:
-    respond(405, 'Method Not Allowed');
+    respond('02', 'Method Not Allowed');
 }
