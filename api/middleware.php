@@ -1,4 +1,5 @@
 <?php
+
 // CORS + Security Headers (optional: move these here too)
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");

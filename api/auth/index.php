@@ -1,8 +1,10 @@
 <?php
-require_once __DIR__ . '/../../controllers/SessionController.php';
+require_once __DIR__ . '/../../controllers/AuthController.php';
 require_once __DIR__ . '/../middleware.php';
 require_once __DIR__ . '/../../utils/RequestUtils.php';
 require_once __DIR__ . '/../../utils/ResponseUtils.php';
+
+checkAuthorization();
 
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
@@ -15,12 +17,14 @@ switch ($method) {
     case 'GET':
         session_start();
 
-        $action = $_GET['action'] ?? null;
+        $action = $_GET['token'] ?? null;
 
-        if ($action === 'logout') {
-            handleLogout();
+        if ($action) {
+            handleSessionCheck($action);
+
         } else {
-            handleSessionCheck();
+            respond(400, "hehe");
+
         }
         break;
 

@@ -5,6 +5,38 @@ require_once __DIR__ . '/../utils/ValidationUtils.php';
 require_once __DIR__ . '/../utils/ResponseUtils.php';
 require_once __DIR__ . '/../utils/RequestUtils.php';
 
+function handleCreate() {
+    $data = sanitizeInput(getRequestBody());
+
+    $missing = validateFields($data, ['bus_id']);
+    if (!empty($missing)) {
+        respond(400, 'Missing required fields: ' . implode(', ', $missing));
+        return;
+    }
+
+    $bus_id = $data['bus_id'];
+
+    if (!checkBusExists($bus_id)) {
+        respond(404, 'Bus not found');
+        return;
+    }
+
+    try {
+        if (checkBusifActive($bus_id)) {
+            respond(400, 'Bus is already active');
+            return;
+        }
+
+        $created = createInstance($bus_id, 'active');
+        if ($created) {
+            respond(201, 'Trip created successfully', ['status' => 'active']);
+        } else {
+            respond(500, 'Failed to create trip');
+        }
+    } catch (Exception $e) {
+        respond(500, $e->getMessage());
+    }
+}
 
 function handleUpdateTripStatus() {
     $data = sanitizeInput(getRequestBody());
