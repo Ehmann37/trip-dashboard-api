@@ -29,9 +29,10 @@ function handleUpdateProfile() {
         return;
     }
 
-    $name  = trim($data['name']);
-    $email = filter_var(trim($data['email']), FILTER_VALIDATE_EMAIL);
+    $name  = isset($data['name']) && $data['name'] !== null ? trim($data['name']) : null;
+    $email = isset($data['email']) && $data['email'] !== null ? filter_var(trim($data['email']), FILTER_VALIDATE_EMAIL) : null;
 
+    
     if (!$email) {
         respond(422, 'Invalid email');
         return;

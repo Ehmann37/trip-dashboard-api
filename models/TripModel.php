@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../utils/TimeUtils.php';
+require_once __DIR__ . '/../utils/DBUtils.php';
+
 
 function getActiveTrip($bus_id) {
   global $pdo;
@@ -61,7 +63,6 @@ function createInstance($bus_id, $status) {
   return $stmt->rowCount() > 0;
 }
 
-
 function checkBusifActive($bus_id) {
   global $pdo;
 
@@ -78,6 +79,10 @@ function incrementTotalPassengers($trip_id) {
   $stmt = $pdo->prepare($sql);
   $stmt->execute([':trip_id' => $trip_id]);
 
+}
+
+function addTripDetails(array $trip_details) {
+  return insertRecord('trip', $trip_details);
 }
 
 ?>

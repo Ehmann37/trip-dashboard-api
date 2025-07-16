@@ -1,41 +1,55 @@
 <?php
 require_once __DIR__ . '/../models/TripModel.php';
+require_once __DIR__ . '/../models/TicketModel.php';
 require_once __DIR__ . '/../models/BusModel.php';
 require_once __DIR__ . '/../utils/ValidationUtils.php'; 
 require_once __DIR__ . '/../utils/ResponseUtils.php';
 require_once __DIR__ . '/../utils/RequestUtils.php';
 
-function handleCreate() {
+function handleCreateTrip() {
     $data = sanitizeInput(getRequestBody());
 
-    $missing = validateFields($data, ['bus_id']);
+    $trip_details = $data['trip_details'] ?? null;
+    $tickets = $data['tickets'] ?? null;
+
+    
+    $missing = validateFields($trip_details, ['route_id', 'bus_id', 'driver_id', 'conductor_id', 'boarding_time', 'arrival_time', 'total_passenger', 'total_revenue']);
+
+    
     if (!empty($missing)) {
         respond(400, 'Missing required fields: ' . implode(', ', $missing));
         return;
     }
 
-    $bus_id = $data['bus_id'];
+    
 
-    if (!checkBusExists($bus_id)) {
-        respond(404, 'Bus not found');
-        return;
+    $trip_id = addTripDetails($trip_details);
+    if (!$trip_id){
+        respond(200, 'Error uploading Trip');
     }
 
-    try {
-        if (checkBusifActive($bus_id)) {
-            respond(400, 'Bus is already active');
+    $ticket_uploaded = true;
+    foreach ($tickets as &$ticket) {
+        if (!isset($trip_id)) {
+            respond(400, 'Trip ID is missing in trip details');
             return;
         }
 
-        $created = createInstance($bus_id, 'active');
-        if ($created) {
-            respond(201, 'Trip created successfully', ['status' => 'active']);
-        } else {
-            respond(500, 'Failed to create trip');
+        $ticket['trip_id'] = $trip_id;
+        $ticket['company_id'] = 1;
+        $tick = addTicket($ticket);
+
+        if (!$tick) {
+            $ticket_uploaded = false;
         }
-    } catch (Exception $e) {
-        respond(500, $e->getMessage());
+    };
+
+    if (!$trip_id && $ticket_uploaded){
+        respond(200, 'Error Uploading Ticket Summary');
+    } else {
+        respond(200, 'Ticket Summary Successfully Uploaded');
     }
+
 }
 
 function handleUpdateTripStatus() {

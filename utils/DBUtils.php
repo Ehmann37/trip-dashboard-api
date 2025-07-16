@@ -56,13 +56,13 @@ function checkExists($table, $field, $value, $extraConditions = []): bool {
   return $stmt->fetchColumn() > 0;
 }
 
-
-function insertRecord(string $table, array $data): bool {
+function insertRecord(string $table, array $data): ?int {
   global $pdo;
 
-  if (empty($data)) return false;
+  if (empty($data)) return null;
 
   $columns = array_keys($data);
+
   $placeholders = array_map(fn($col) => ":$col", $columns);
 
   $sql = "INSERT INTO $table (" . implode(', ', $columns) . ")
@@ -74,6 +74,9 @@ function insertRecord(string $table, array $data): bool {
       $stmt->bindValue(":$col", $value ?? null);
   }
 
-  return $stmt->execute();
-}
+  if ($stmt->execute()) {
+      return (int)$pdo->lastInsertId();
+  }
 
+  return null;
+}
