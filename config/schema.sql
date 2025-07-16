@@ -44,15 +44,6 @@ CREATE TABLE driver (
     FOREIGN KEY (company_id) REFERENCES bus_companies(company_id)
 );
 
---6
-CREATE table conductor (
-    conductor_id INT PRIMARY KEY,
-    full_name VARCHAR(50),
-    contact_info VARCHAR(100),
-    company_id INT,
-    FOREIGN KEY (company_id) REFERENCES bus_companies(company_id)
-);
-
 --7
 CREATE TABLE bus (
     bus_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -63,7 +54,7 @@ CREATE TABLE bus (
     status ENUM('active', 'inactive') DEFAULT 'active',
     FOREIGN KEY (route_id) REFERENCES route(route_id),
     FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
-    FOREIGN KEY (conductor_id) REFERENCES conductor(conductor_id),
+    FOREIGN KEY (conductor_id) REFERENCES users(user_id),
     FOREIGN KEY (company_id) REFERENCES bus_companies(company_id)
 );
 
@@ -81,7 +72,7 @@ CREATE TABLE trip (
     FOREIGN KEY (route_id) REFERENCES route(route_id),
     FOREIGN KEY (bus_id) REFERENCES bus(bus_id),
     FOREIGN KEY (driver_id) REFERENCES driver(driver_id),
-    FOREIGN KEY (conductor_id) REFERENCES conductor(conductor_id)
+    FOREIGN KEY (conductor_id) REFERENCES users(user_id)
 );
 
 --9
