@@ -17,7 +17,7 @@ function handleCreateTrip() {
 
     
     if (!empty($missing)) {
-        respond(400, 'Missing required fields: ' . implode(', ', $missing));
+        respond('01', 'Missing required fields: ' . implode(', ', $missing));
         return;
     }
 
@@ -25,13 +25,13 @@ function handleCreateTrip() {
 
     $trip_id = addTripDetails($trip_details);
     if (!$trip_id){
-        respond(200, 'Error uploading Trip');
+        respond('01', 'Error uploading Trip');
     }
 
     $ticket_uploaded = true;
     foreach ($tickets as &$ticket) {
         if (!isset($trip_id)) {
-            respond(400, 'Trip ID is missing in trip details');
+            respond('01', 'Trip ID is missing in trip details');
             return;
         }
 
@@ -45,9 +45,9 @@ function handleCreateTrip() {
     };
 
     if (!$trip_id && $ticket_uploaded){
-        respond(200, 'Error Uploading Ticket Summary');
+        respond('01', 'Error Uploading Ticket Summary');
     } else {
-        respond(200, 'Ticket Summary Successfully Uploaded');
+        respond('1', 'Ticket Summary Successfully Uploaded');
     }
 
 }
@@ -57,7 +57,7 @@ function handleUpdateTripStatus() {
 
     $missing = validateFields($data, ['bus_id', 'status']);
     if (!empty($missing)) {
-        respond(400, 'Missing required fields: ' . implode(', ', $missing));
+        respond('01', 'Missing required fields: ' . implode(', ', $missing));
         return;
     }
 

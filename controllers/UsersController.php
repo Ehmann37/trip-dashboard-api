@@ -7,7 +7,7 @@ function handleUpdateProfile() {
     $data = sanitizeInput(getRequestBody());
 
     if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-        respond(400, 'Invalid or missing user ID');
+        respond('01', 'Invalid or missing user ID');
         return;
     }
 
@@ -15,7 +15,7 @@ function handleUpdateProfile() {
     $user = getUserById($user_id);
 
     if (!$user) {
-        respond(404, 'User not found');
+        respond('01', 'User not found');
         return;
     }
 
@@ -26,11 +26,11 @@ function handleUpdateProfile() {
     if (isset($data['email'])) {
         $email = filter_var(trim($data['email']), FILTER_VALIDATE_EMAIL);
         if (!$email) {
-            respond(422, 'Invalid email');
+            respond('01', 'Invalid email');
             return;
         }
         if (emailExists($email, $user_id)) {
-            respond(409, 'Email already in use');
+            respond('01', 'Email already in use');
             return;
         }
         $fields['email'] = $email;
@@ -43,7 +43,7 @@ function handleUpdateProfile() {
 
         $passwordValidation = validatePasswordChange($user_id, $currentPass, $newPass, $confirmNew);
         if (!$passwordValidation['success']) {
-            respond(422, $passwordValidation['message']);
+            respond('01', $passwordValidation['message']);
             return;
         }
 
@@ -51,10 +51,10 @@ function handleUpdateProfile() {
     }
 
     if (!updateUser($user_id, $fields)) {
-        respond(500, 'Update failed');
+        respond('01', 'Update failed');
         return;
     }
 
     $updated = getUserById($user_id);
-    respond(200, 'Profile updated', $updated);
+    respond('1', 'Profile updated', $updated);
 }

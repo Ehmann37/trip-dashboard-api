@@ -9,7 +9,7 @@ function handleLoginRequest() {
     $data = sanitizeInput(getRequestBody());
 
     if (empty($data['email']) || empty($data['password'])) {
-        respond(200, 'Missing email or password');
+        respond('01', 'Missing email or password');
         return;
     }
 
@@ -41,11 +41,11 @@ function handleLoginRequest() {
             'token'      => $token
         ];
 
-        respond(200, 'Login successful', $responseUser);
+        respond('1', 'Login successful', $responseUser);
         return;
     }
 
-    respond(200, 'Invalid sign-in credentials');
+    respond('01', 'Invalid sign-in credentials');
 }
 
 function handleSessionCheck($token) {
@@ -53,13 +53,13 @@ function handleSessionCheck($token) {
 
     $payload = verifyJWT($token);
     if (!$payload) {
-        respond(200, 'Invalid or expired token');
+        respond('01', 'Invalid or expired token');
         return;
     }
 
     $user = getUserByToken($token);
     if (!$user) {
-        respond(200, 'Token not found or revoked');
+        respond('01', 'Token not found or revoked');
         return;
     }
 
@@ -72,7 +72,7 @@ function handleSessionCheck($token) {
         'created_at' => $user['created_at']
     ];
 
-    respond(200, 'User is authenticated', $responseUser);
+    respond('1', 'User is authenticated', $responseUser);
 }
 
 function generateJWT(array $payload, int $exp = 86200): string {

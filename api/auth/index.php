@@ -23,11 +23,11 @@ switch ($method) {
             handleSessionCheck($action);
 
         } else {
-            respond(400, "hehe");
+            respond('01', "hehe");
 
         }
         break;
 
     default:
-        respond(405, 'Method Not Allowed');
+        respond('02', 'Method Not Allowed');
 }

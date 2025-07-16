@@ -81,7 +81,7 @@ function incrementTotalPassengers($trip_id) {
 
 }
 
-function addTripDetails(array $trip_details) {
+function addTripDetails(array $trip_details): bool {
   return insertRecord('trip', $trip_details);
 }
 
