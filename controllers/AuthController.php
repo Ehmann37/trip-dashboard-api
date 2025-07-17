@@ -1,11 +1,8 @@
 <?php
 require_once __DIR__ . '/../models/AuthModel.php';
 require_once __DIR__ . '/../utils/ResponseUtils.php';
-require_once __DIR__ . '/../config/db.php';
 
 function handleLoginRequest() {
-    global $pdo;
-
     $data = sanitizeInput(getRequestBody());
 
     if (empty($data['email']) || empty($data['password'])) {
@@ -25,11 +22,10 @@ function handleLoginRequest() {
             'role' => $user['role']
         ]);
 
-        $stmt = $pdo->prepare("UPDATE users SET token = :token WHERE user_id = :id");
-        $stmt->execute([
-            ':token' => $token,
-            ':id'    => $user['user_id']
-        ]);
+        if (!updateUserToken($user['user_id'], $token)) {
+            respond('01', 'Failed to update token');
+            return;
+        }
 
         $responseUser = [
             'user_id'    => $user['user_id'],
@@ -49,8 +45,6 @@ function handleLoginRequest() {
 }
 
 function handleSessionCheck($token) {
-    global $pdo;
-
     $payload = verifyJWT($token);
     if (!$payload) {
         respond('01', 'Invalid or expired token');
