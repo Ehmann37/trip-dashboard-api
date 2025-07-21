@@ -22,9 +22,9 @@ function updateRecord($table, $idField, $id, $data, $allowedFields) {
   $params = [":$idField" => $id];
 
   foreach ($allowedFields as $field) {
-      if (isset($data[$field])) {
+      if (array_key_exists($field, $data)) { 
           $fieldsToUpdate[] = "$field = :$field";
-          $params[":$field"] = $data[$field];
+          $params[":$field"] = $data[$field]; 
       }
   }
 
@@ -38,6 +38,7 @@ function updateRecord($table, $idField, $id, $data, $allowedFields) {
 
   return $stmt->rowCount() > 0;
 }
+
 
 function checkExists($table, $field, $value, $extraConditions = []): bool {
   global $pdo;

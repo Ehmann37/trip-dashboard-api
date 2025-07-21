@@ -16,6 +16,11 @@ switch($method) {
   case 'POST':
     handleAddBus();
     break;
+
+  case 'PUT':
+    $queryParams = getQueryParams(['bus_id']);
+    handleUpdateBus($queryParams);
+    break;
   default:
     respond('02', 'Method Not Allowed');
 }
