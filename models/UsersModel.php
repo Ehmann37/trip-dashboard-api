@@ -67,5 +67,7 @@ function validatePasswordChange(int $user_id, string $currentPass, string $newPa
 
     
 
-    return ['success' => true, 'hashed_password' => password_hash($newPass, PASSWORD_DEFAULT)];
+    return [
+        'success' => true, 
+        'hashed_password' => password_hash($newPass, PASSWORD_DEFAULT)];
 }

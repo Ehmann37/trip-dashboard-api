@@ -7,7 +7,6 @@ function companyExists($company_id) {
 }
 
 function getCompanyAnalytics(int $companyId): array {
-  // Get all ticket info for trips with buses belonging to this company
   global $pdo;
   $sql = "
       SELECT 
@@ -40,19 +39,16 @@ function getCompanyAnalytics(int $companyId): array {
       $grossRevenue += $fare;
       $totalPassenger++;
 
-      // Count payment methods
       if (!isset($paymentCounts[$paymentMethod])) {
           $paymentCounts[$paymentMethod] = 0;
       }
       $paymentCounts[$paymentMethod]++;
 
-      // Count passenger categories
       if (!isset($categoryCounts[$passengerCategory])) {
           $categoryCounts[$passengerCategory] = 0;
       }
       $categoryCounts[$passengerCategory]++;
 
-      // Monthly breakdown
       $monthKey = date('m-Y', strtotime($arrivalTime));
       if (!isset($monthlyBreakdown[$monthKey])) {
           $monthlyBreakdown[$monthKey] = ['revenue' => 0, 'passenger_count' => 0];
@@ -61,7 +57,6 @@ function getCompanyAnalytics(int $companyId): array {
       $monthlyBreakdown[$monthKey]['passenger_count']++;
   }
 
-  // Format percentages
   $paymentPercentages = [];
   foreach ($paymentCounts as $method => $count) {
       $percentage = $totalPassenger > 0 ? round(($count / $totalPassenger) * 100, 2) : 0;
@@ -80,9 +75,8 @@ function getCompanyAnalytics(int $companyId): array {
       ];
   }
 
-  // Format monthly breakdown
   $formattedMonthly = [];
-  ksort($monthlyBreakdown); // sort by month
+  ksort($monthlyBreakdown); 
   foreach ($monthlyBreakdown as $month => $data) {
       $formattedMonthly[] = [
           'month' => $month,
