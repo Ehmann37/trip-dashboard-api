@@ -9,7 +9,7 @@ require_once __DIR__ . '/../utils/ValidationUtils.php';
 function handleGetConductor() {
   $conductors = getAllConductors();
   
-  respond('1', 'Routes retrieved successfully', $company);
+  respond('1', 'Conductors retrieved successfully', $conductors);
 }
 
 function handleAddConductor() {

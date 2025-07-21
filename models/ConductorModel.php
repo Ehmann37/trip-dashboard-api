@@ -30,8 +30,7 @@
         $conductor['bus_id'] = null;
       }
     }
-    echo json_encode($conductors);
-    exit;
+    return $conductors;
   }
 
   function addConductor(array $conductorData): int {
