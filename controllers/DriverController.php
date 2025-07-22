@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/DriverModel.php';
+require_once __DIR__ . '/../models/BusModel.php';
 require_once __DIR__ . '/../utils/ValidationUtils.php'; 
 require_once __DIR__ . '/../utils/ResponseUtils.php';
 require_once __DIR__ . '/../utils/RequestUtils.php';
@@ -44,11 +45,11 @@ function handleUpdateDriver() {
     respond('01', 'License number already in use');
   }
 
-  if ($bus_id && busHasDriver($bus_id)) {
+  if ($bus_id && busHasAssigned($bus_id, 'driver_id')) {
     respond('01', 'Bus already has a driver assigned');
   }
 
-  if ($bus_id && driverAssignedToOtherBus($driver_id, $bus_id)) {
+  if ($bus_id && isAssignedToAnotherBus($driver_id, $bus_id, 'driver_id')) {
     respond('01', 'Driver is already assigned to another bus. Unassign first.');
   }
 

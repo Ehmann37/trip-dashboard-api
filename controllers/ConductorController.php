@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/ConductorModel.php';
+require_once __DIR__ . '/../models/UsersModel.php';
+require_once __DIR__ . '/../models/BusModel.php';
 require_once __DIR__ . '/../utils/ValidationUtils.php'; 
 require_once __DIR__ . '/../utils/ResponseUtils.php';
 require_once __DIR__ . '/../utils/RequestUtils.php';
@@ -46,15 +48,15 @@ function handleUpdateConductor() {
   $email = $data['email'] ?? null;
   $bus_id = $data['bus_id'] ?? null;
 
-  if ($email && emailExistsForOtherUser($email, $conductor_id)) {
+  if ($email && emailExists($email, $conductor_id)) {
     respond('01', 'Email already in use by another user');
   }
 
-  if ($bus_id && checkIfAnyConductorisAssigned($bus_id)) {
+  if ($bus_id && busHasAssigned($bus_id, 'conductor_id')) {
     respond('01', 'Bus already has a conductor assigned');
   }
 
-  if ($bus_id && isConductorAssignedToAnotherBus($conductor_id, $bus_id)) {
+  if ($bus_id && isAssignedToAnotherBus($conductor_id, $bus_id, 'conductor_id')) {
     respond('01', 'Conductor is already assigned to another bus. Unassign them first.');
   }
 

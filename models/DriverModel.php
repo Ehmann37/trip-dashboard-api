@@ -82,17 +82,3 @@ function licenseExistsForOtherDriver($license_number, $exclude_driver_id) {
   $stmt->execute([':ln' => $license_number, ':id' => $exclude_driver_id]);
   return $stmt->fetch() !== false;
 }
-
-function busHasDriver($bus_id) {
-  global $pdo;
-  $stmt = $pdo->prepare("SELECT driver_id FROM bus WHERE bus_id = :id AND driver_id IS NOT NULL");
-  $stmt->execute([':id' => $bus_id]);
-  return $stmt->fetch() !== false;
-}
-
-function driverAssignedToOtherBus($driver_id, $new_bus_id) {
-  global $pdo;
-  $stmt = $pdo->prepare("SELECT bus_id FROM bus WHERE driver_id = :driver_id AND bus_id != :bus_id LIMIT 1");
-  $stmt->execute([':driver_id' => $driver_id, ':bus_id' => $new_bus_id]);
-  return $stmt->fetch() !== false;
-}

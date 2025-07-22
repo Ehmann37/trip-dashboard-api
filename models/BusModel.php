@@ -19,3 +19,31 @@ function addBus(array $busData){
 function updateBus($busData, $bus_id, $allowed_fields): bool {
   return updateRecord('bus', 'bus_id', $bus_id, $busData, $allowed_fields);
 }
+
+function busHasAssigned($bus_id, $column): bool {
+  global $pdo;
+
+  if (!in_array($column, ['conductor_id', 'driver_id'])) {
+    throw new InvalidArgumentException("Invalid column name.");
+  }
+
+  $sql = "SELECT 1 FROM bus WHERE bus_id = :bus_id AND $column IS NOT NULL LIMIT 1";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([':bus_id' => $bus_id]);
+
+  return $stmt->fetchColumn() !== false;
+}
+
+function isAssignedToAnotherBus($id, $new_bus_id, $column): bool {
+  global $pdo;
+
+  if (!in_array($column, ['conductor_id', 'driver_id'])) {
+    throw new InvalidArgumentException("Invalid column name.");
+  }
+
+  $sql = "SELECT 1 FROM bus WHERE $column = :id AND bus_id != :bus_id LIMIT 1";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([':id' => $id, ':bus_id' => $new_bus_id]);
+
+  return $stmt->fetchColumn() !== false;
+}

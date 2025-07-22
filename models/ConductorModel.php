@@ -104,27 +104,3 @@ function checkConductorIfAssigned($conductor_id): bool {
 function checkConductorExists($conductor_id): bool {
   return checkExists('conductors', 'conductor_id', $conductor_id);
 }
-
-function checkIfAnyConductorisAssigned($bus_id) : bool {
-  global $pdo;
-
-  $sql = "SELECT COUNT(*) FROM bus WHERE bus_id = :bus_id AND conductor_id IS NOT NULL";
-  $stmt = $pdo->prepare($sql);
-  $stmt->execute([':bus_id' => $bus_id]);
-
-  return $stmt->fetchColumn() > 0;
-}
-
-function emailExistsForOtherUser($email, $excludeUserId) {
-  global $pdo;
-  $stmt = $pdo->prepare("SELECT 1 FROM users WHERE email = :email AND user_id != :id LIMIT 1");
-  $stmt->execute([':email' => $email, ':id' => $excludeUserId]);
-  return $stmt->fetch() !== false;
-}
-
-function isConductorAssignedToAnotherBus($conductor_id, $new_bus_id) {
-  global $pdo;
-  $stmt = $pdo->prepare("SELECT bus_id FROM bus WHERE conductor_id = :cid AND bus_id != :new_bus_id LIMIT 1");
-  $stmt->execute([':cid' => $conductor_id, ':new_bus_id' => $new_bus_id]);
-  return $stmt->fetch() !== false;
-}
