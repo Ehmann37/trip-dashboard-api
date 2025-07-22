@@ -5,14 +5,14 @@ require_once __DIR__ . '/../utils/DBUtils.php';
 function getAllDrivers(){
   global $pdo;
   
-  $sql = "SELECT * FROM driver";
+  $sql = "SELECT * FROM drivers";
   $stmt = $pdo->prepare($sql);
   $stmt->execute();
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function addDriver(array $driverData): int {
-  return insertRecord('driver', $driverData);
+  return insertRecord('drivers', $driverData);
 }
 
 function checkDriverIfAssigned($driver_id): bool {
@@ -26,5 +26,5 @@ function checkDriverIfAssigned($driver_id): bool {
 }
 
 function checkDriverExists($driver_id): bool {
-  return checkExists('driver', 'driver_id', $driver_id);
+  return checkExists('drivers', 'driver_id', $driver_id);
 }

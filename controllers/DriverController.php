@@ -15,7 +15,7 @@ function handleGetDriver() {
 function handleAddDriver() {
   $data = sanitizeInput(getRequestBody());
 
-  $missing = validateFields($data, ['license_number', 'full_name', 'contact_info']);
+  $missing = validateFields($data, ['license_number', 'full_name', 'contact_number']);
   if ($missing) {
     respond('02', 'Missing required fields: ' . implode(', ', $missing));
   }
