@@ -61,3 +61,38 @@ function checkIfAnyDriveisAssigned($bus_id) : bool {
 
   return $stmt->fetchColumn() > 0;
 }
+
+function updateDriverInfo($driverData, $driver_id, $allowedFields) {
+  $updated = false;
+
+  $driverUpdate = updateRecord('drivers', 'driver_id', $driver_id, $driverData, $allowedFields);
+  if ($driverUpdate) $updated = true;
+
+  if (isset($driverData['bus_id'])) {
+    $busUpdate = updateRecord('bus', 'bus_id', $driverData['bus_id'], ['driver_id' => $driver_id], ['driver_id']);
+    if ($busUpdate) $updated = true;
+  }
+
+  return $updated;
+}
+
+function licenseExistsForOtherDriver($license_number, $exclude_driver_id) {
+  global $pdo;
+  $stmt = $pdo->prepare("SELECT 1 FROM drivers WHERE license_number = :ln AND driver_id != :id LIMIT 1");
+  $stmt->execute([':ln' => $license_number, ':id' => $exclude_driver_id]);
+  return $stmt->fetch() !== false;
+}
+
+function busHasDriver($bus_id) {
+  global $pdo;
+  $stmt = $pdo->prepare("SELECT driver_id FROM bus WHERE bus_id = :id AND driver_id IS NOT NULL");
+  $stmt->execute([':id' => $bus_id]);
+  return $stmt->fetch() !== false;
+}
+
+function driverAssignedToOtherBus($driver_id, $new_bus_id) {
+  global $pdo;
+  $stmt = $pdo->prepare("SELECT bus_id FROM bus WHERE driver_id = :driver_id AND bus_id != :bus_id LIMIT 1");
+  $stmt->execute([':driver_id' => $driver_id, ':bus_id' => $new_bus_id]);
+  return $stmt->fetch() !== false;
+}

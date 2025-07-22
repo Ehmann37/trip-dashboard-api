@@ -28,3 +28,37 @@ function handleAddDriver() {
     respond('1', 'driver added successfully', ['driver_id' => $driverAdded]);
   }
 }   
+
+function handleUpdateDriver() {
+  $data = sanitizeInput(getRequestBody());
+
+  $driver_id = $data['driver_id'] ?? null;
+  if (!$driver_id) {
+    respond('01', 'Missing driver_id');
+  }
+
+  $bus_id = $data['bus_id'] ?? null;
+  $license_number = $data['license_number'] ?? null;
+
+  if ($license_number && licenseExistsForOtherDriver($license_number, $driver_id)) {
+    respond('01', 'License number already in use');
+  }
+
+  if ($bus_id && busHasDriver($bus_id)) {
+    respond('01', 'Bus already has a driver assigned');
+  }
+
+  if ($bus_id && driverAssignedToOtherBus($driver_id, $bus_id)) {
+    respond('01', 'Driver is already assigned to another bus. Unassign first.');
+  }
+
+  $allowedFields = ['license_number', 'full_name', 'contact_number', 'status'];
+
+  $update = updateDriverInfo($data, $driver_id, $allowedFields);
+
+  if (!$update) {
+    respond('01', 'No changes made or failed to update driver');
+  } else {
+    respond('1', 'Driver updated successfully');
+  }
+}
