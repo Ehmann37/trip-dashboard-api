@@ -38,7 +38,10 @@ function addConductor(array $conductorData): int {
   $conductorData['role'] = 'conductor';
   $conductorData['created_at'] = date('Y-m-d H:i:s');
 
-  return insertRecord('users', $conductorData);
+  $conductor_id = insertRecord('users', $conductorData);
+  return insertRecord('conductors', [
+    'conductor_id' => $conductor_id 
+  ]);
 }
 
 function checkConductorIfAssigned($conductor_id): bool {
@@ -52,6 +55,6 @@ function checkConductorIfAssigned($conductor_id): bool {
 }
 
 function checkConductorExists($conductor_id): bool {
-  return checkExists('users', 'user_id', $conductor_id, ['role' => 'conductor']);
+  return checkExists('conductors', 'conductor_id', $conductor_id);
 }
 
