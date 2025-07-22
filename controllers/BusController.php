@@ -11,7 +11,7 @@ require_once __DIR__ . '/../utils/ValidationUtils.php';
 function handleGetBus() {
   $bus = getAllBus();
 
-  respond('1', 'Conductors retrieved successfully', $bus);
+  respond('1', 'Buses retrieved successfully', $bus);
 }
 
 function handleAddBus() {
@@ -46,23 +46,41 @@ function handleUpdateBus($queryParams) {
 
   if ($driver_id !== null) {
     if (checkDriverIfAssigned($driver_id)){
-      respond('02', 'Driver is already assigned to another bus');
+      respond('02', 'Driver is already assigned to a bus');
     }
     if (!checkDriverExists($driver_id)) {
       respond('02', 'Driver does not exist');
     }
+
+    $previousDriverId = getDriverIdByBusId($bus_id) ?? null;
+    if (!is_null($previousDriverId)) {
+      updateDriverStatus($previousDriverId, 'inactive');
+    }
+    
+    if (!is_null($driver_id)) {
+      updateDriverStatus($driver_id, 'active');
+    }
+
   }
 
   if ($conductor_id !== null){
     if (checkConductorIfAssigned($conductor_id)){
-      respond('02', 'Conductor is already assigned to another bus');
+      respond('02', 'Conductor is already assigned to a bus');
     }
     if (!checkConductorExists($conductor_id)) {
       respond('02', 'Conductor does not exist');
     }
+
+    $previousConductorId = getConductorIdByBusId($bus_id) ?? null;
+    if (!is_null($previousConductorId)) {
+      updateConductorStatus($previousConductorId, 'inactive');
+    }
+    
+    if (!is_null($conductor_id)) {
+      updateConductorStatus($conductor_id, 'active');
+    }
   }
 
-  
 
   $busUpdated = updateBus($data, $bus_id, ['status', 'route_id', 'conductor_id', 'driver_id']);
 

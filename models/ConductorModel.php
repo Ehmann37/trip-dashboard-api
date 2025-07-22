@@ -33,6 +33,16 @@ function getAllConductors(){
   return $conductors;
 }
 
+function getConductorIdByBusId($bus_id): ?int {
+  global $pdo;
+
+  $sql = "SELECT conductor_id FROM bus WHERE bus_id = :bus_id";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([':bus_id' => $bus_id]);
+
+  return $stmt->fetchColumn() ?: null;
+}
+
 function addConductor(array $conductorData): int {
   $conductorData['hashed_password'] = password_hash('123123123', PASSWORD_DEFAULT); 
   $conductorData['role'] = 'conductor';
@@ -42,6 +52,19 @@ function addConductor(array $conductorData): int {
   return insertRecord('conductors', [
     'conductor_id' => $conductor_id 
   ]);
+}
+
+function updateConductorStatus($conductor_id, $status){
+  global $pdo;
+
+  $sql = "UPDATE conductors SET status = :status WHERE conductor_id = :conductor_id";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([
+    ':status' => $status,
+    ':conductor_id' => $conductor_id
+  ]);
+
+  return $stmt->rowCount() > 0;
 }
 
 function checkConductorIfAssigned($conductor_id): bool {
