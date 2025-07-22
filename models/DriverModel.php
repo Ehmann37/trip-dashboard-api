@@ -51,3 +51,13 @@ function checkDriverIfAssigned($driver_id): bool {
 function checkDriverExists($driver_id): bool {
   return checkExists('drivers', 'driver_id', $driver_id);
 }
+
+function checkIfAnyDriveisAssigned($bus_id) : bool {
+  global $pdo;
+
+  $sql = "SELECT COUNT(*) FROM bus WHERE bus_id = :bus_id AND driver_id IS NOT NULL";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([':bus_id' => $bus_id]);
+
+  return $stmt->fetchColumn() > 0;
+}

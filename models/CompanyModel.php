@@ -14,8 +14,8 @@ function getCompanyAnalytics(int $companyId): array {
           t.payment_mode,
           t.passenger_category,
           tr.arrival_time
-      FROM ticket t
-      INNER JOIN trip tr ON t.trip_id = tr.trip_id
+      FROM tickets t
+      INNER JOIN trips tr ON t.trip_id = tr.trip_id
       INNER JOIN bus b ON tr.bus_id = b.bus_id
       WHERE b.company_id = :company_id
   ";

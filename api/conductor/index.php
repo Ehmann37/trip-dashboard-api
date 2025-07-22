@@ -16,6 +16,10 @@ switch($method) {
   case 'POST':
     handleAddConductor();
     break;
+
+  case 'PUT':
+    handleUpdateConductor();
+    break;
   default:
     respond('02', 'Method Not Allowed');
 }

@@ -71,3 +71,12 @@ function validatePasswordChange(int $user_id, string $currentPass, string $newPa
         'success' => true, 
         'hashed_password' => password_hash($newPass, PASSWORD_DEFAULT)];
 }
+
+function emailCannot(string $email): bool {
+    global $pdo;
+
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
+    $stmt->execute([':email' => $email]);
+
+    return $stmt->fetchColumn() > 0;
+}

@@ -22,14 +22,14 @@ function updateRecord($table, $idField, $id, $data, $allowedFields) {
   $params = [":$idField" => $id];
 
   foreach ($allowedFields as $field) {
-      if (array_key_exists($field, $data)) { 
-          $fieldsToUpdate[] = "$field = :$field";
-          $params[":$field"] = $data[$field]; 
-      }
+    if (array_key_exists($field, $data)) {
+      $fieldsToUpdate[] = "$field = :$field";
+      $params[":$field"] = $data[$field];  // Corrected here
+    }
   }
 
   if (empty($fieldsToUpdate)) {
-      return false;
+    return false;
   }
 
   $sql = "UPDATE $table SET " . implode(', ', $fieldsToUpdate) . " WHERE $idField = :$idField";

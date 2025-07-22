@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../models/BusModel.php';
 require_once __DIR__ . '/../models/DriverModel.php';
 require_once __DIR__ . '/../models/ConductorModel.php';
+require_once __DIR__ . '/../models/RouteModel.php';
 require_once __DIR__ . '/../utils/ValidationUtils.php'; 
 require_once __DIR__ . '/../utils/ResponseUtils.php';
 require_once __DIR__ . '/../utils/RequestUtils.php';
@@ -43,6 +44,7 @@ function handleUpdateBus($queryParams) {
 
   $conductor_id = $data['conductor_id'] ?? null;
   $driver_id = $data['driver_id'] ?? null;
+  $route_id = $data['route_id'] ?? null;
 
   if ($driver_id !== null) {
     if (checkDriverIfAssigned($driver_id)){
@@ -81,8 +83,14 @@ function handleUpdateBus($queryParams) {
     }
   }
 
+  if ($route_id !== null){
+    if (!checkRouteExists($route_id)) {
+      respond('02', 'Route not found');
+    }
+  }
 
-  $busUpdated = updateBus($data, $bus_id, ['status', 'route_id', 'conductor_id', 'driver_id']);
+  $allowedFields = ['status', 'route_id', 'conductor_id', 'driver_id', 'next_maintenance'];
+  $busUpdated = updateBus($data, $bus_id, $allowedFields);
 
   if (!$busUpdated) {
     respond('02', 'Failed to update bus');
