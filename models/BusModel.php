@@ -47,3 +47,10 @@ function isAssignedToAnotherBus($id, $new_bus_id, $column): bool {
 
   return $stmt->fetchColumn() !== false;
 }
+
+function busExists($bus_id): bool {
+  global $pdo;
+  $stmt = $pdo->prepare("SELECT 1 FROM bus WHERE bus_id = :bus_id LIMIT 1");
+  $stmt->execute([':bus_id' => $bus_id]);
+  return $stmt->fetch() !== false;
+}

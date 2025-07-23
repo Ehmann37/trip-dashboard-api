@@ -81,3 +81,26 @@ function insertRecord(string $table, array $data): ?int {
 
   return null;
 }
+
+function updateRecordByCondition($table, $whereConditions, $updateData) {
+  global $pdo;
+
+  $setClause = [];
+  $whereClause = [];
+  $params = [];
+
+  foreach ($updateData as $field => $value) {
+    $setClause[] = "$field = :set_$field";
+    $params[":set_$field"] = $value;
+  }
+
+  foreach ($whereConditions as $field => $value) {
+    $whereClause[] = "$field = :where_$field";
+    $params[":where_$field"] = $value;
+  }
+
+  $sql = "UPDATE $table SET " . implode(', ', $setClause) . " WHERE " . implode(' AND ', $whereClause);
+  $stmt = $pdo->prepare($sql);
+
+  return $stmt->execute($params);
+}

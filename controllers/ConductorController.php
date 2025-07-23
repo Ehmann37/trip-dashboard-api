@@ -52,16 +52,21 @@ function handleUpdateConductor() {
     respond('01', 'Email already in use by another user');
   }
 
-  if ($bus_id && busHasAssigned($bus_id, 'conductor_id')) {
-    respond('01', 'Bus already has a conductor assigned');
-  }
+  if ($bus_id !== null) {
+    if (!busExists($bus_id)) {
+      respond('01', 'Bus does not exist');
+    }
 
-  if ($bus_id && isAssignedToAnotherBus($conductor_id, $bus_id, 'conductor_id')) {
-    respond('01', 'Conductor is already assigned to another bus. Unassign them first.');
+    if (busHasAssigned($bus_id, 'conductor_id')) {
+      respond('01', 'Bus already has a conductor assigned');
+    }
+
+    if (isAssignedToAnotherBus($conductor_id, $bus_id, 'conductor_id')) {
+      respond('01', 'Conductor is already assigned to another bus. Unassign first.');
+    }
   }
 
   $allowedFields = ['name', 'email', 'contact_number'];
-
   $update = updateConductorInfo($data, $conductor_id, $allowedFields);
 
   if (!$update) {

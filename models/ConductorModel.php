@@ -83,13 +83,19 @@ function updateConductorInfo($conductorData, $conductor_id, $allowedUserFields) 
     if ($conductorUpdate) $updated = true;
   }
 
-  if (isset($conductorData['bus_id'])) {
-    $busUpdate = updateRecord('bus', 'bus_id', $conductorData['bus_id'], ['conductor_id' => $conductor_id], ['conductor_id']);
-    if ($busUpdate) $updated = true;
+  if (array_key_exists('bus_id', $conductorData)) {
+    $unset = updateRecordByCondition('bus', ['conductor_id' => $conductor_id], ['conductor_id' => null]);
+    if ($unset) $updated = true;
+
+    if (!is_null($conductorData['bus_id'])) {
+      $assign = updateRecord('bus', 'bus_id', $conductorData['bus_id'], ['conductor_id' => $conductor_id], ['conductor_id']);
+      if ($assign) $updated = true;
+    }
   }
 
   return $updated;
 }
+
 
 function checkConductorIfAssigned($conductor_id): bool {
   global $pdo;
