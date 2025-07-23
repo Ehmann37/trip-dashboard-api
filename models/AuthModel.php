@@ -26,13 +26,3 @@ function getUserByToken($token) {
     $stmt->execute([$token]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
-
-function updateUserToken(int $user_id, string $token): bool {
-    global $pdo;
-
-    $stmt = $pdo->prepare("UPDATE users SET token = :token WHERE user_id = :id");
-    return $stmt->execute([
-        ':token' => $token,
-        ':id'    => $user_id
-    ]);
-}

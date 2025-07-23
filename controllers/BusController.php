@@ -20,26 +20,29 @@ function handleAddBus() {
 
   $missing = validateFields($data, ['bus_id', 'company_id']);
   if ($missing) {
-    respond('02', 'Missing required fields: ' . implode(', ', $missing));
+    respond('01', 'Missing required fields: ' . implode(', ', $missing));
+  }
+
+  $bus_id = $data['bus_id'];
+  if (busExists($bus_id)){
+    respond('01', 'A bus with bus id ' .$bus_id. ' already exist.');
   }
 
   $busAdded = addBus($data);
 
-
-
   if (!$busAdded) {
-    respond('02', 'Failed to add bus');
+    respond('01', 'Failed to add bus.');
   } else {
-    respond('1', 'bus added successfully');
+    respond('1', 'bus added successfully.');
   }
 }   
 
-function handleUpdateBus($queryParams) {
+function handleUpdateBus() {
   $data = sanitizeInput(getRequestBody());
 
-  $bus_id = $queryParams['bus_id'] ?? null;
+  $bus_id = $data['bus_id'] ?? null;
   if ($bus_id === null) {
-    respond('02', 'Missing bus_id in query parameters');
+    respond('01', 'Missing bus_id in query parameters');
   }
 
   $conductor_id = $data['conductor_id'] ?? null;
@@ -47,16 +50,15 @@ function handleUpdateBus($queryParams) {
   $route_id = $data['route_id'] ?? null;
 
   if ($driver_id !== null) {
-    if (checkDriverIfAssigned($driver_id)){
-      respond('02', 'Driver is already assigned to a bus');
+    if (checkDriverIfAssigned($driver_id, $bus_id)){
+      respond('01', 'Driver is already assigned to a bus');
     }
     if (!checkDriverExists($driver_id)) {
-      respond('02', 'Driver does not exist');
+      respond('01', 'Driver does not exist');
     }
 
-    $previousDriverId = getDriverIdByBusId($bus_id) ?? null;
-    if (!is_null($previousDriverId)) {
-      updateDriverStatus($previousDriverId, 'inactive');
+    if ($bus_id && busHasAssigned($bus_id, 'driver_id')  && getDriverIdByBusId($bus_id) != $driver_id)  {
+      updateDriverInfo(['bus_id' => NULL, 'driver_id' => getDriverIdByBusId($bus_id)], getDriverIdByBusId($bus_id));
     }
     
     if (!is_null($driver_id)) {
@@ -66,16 +68,15 @@ function handleUpdateBus($queryParams) {
   }
 
   if ($conductor_id !== null){
-    if (checkConductorIfAssigned($conductor_id)){
-      respond('02', 'Conductor is already assigned to a bus');
+    if (checkConductorIfAssigned($conductor_id, $bus_id)){
+      respond('01', 'Conductor is already assigned to a bus');
     }
     if (!checkConductorExists($conductor_id)) {
-      respond('02', 'Conductor does not exist');
+      respond('01', 'Conductor does not exist');
     }
 
-    $previousConductorId = getConductorIdByBusId($bus_id) ?? null;
-    if (!is_null($previousConductorId)) {
-      updateConductorStatus($previousConductorId, 'inactive');
+    if (busHasAssigned($bus_id, 'conductor_id') && getConductorIdByBusId($bus_id) != $conductor_id) {
+      updateConductorInfo(['bus_id' => NULL, 'conductor_id' => getConductorIdByBusId($bus_id)], getConductorIdByBusId($bus_id));
     }
     
     if (!is_null($conductor_id)) {
@@ -85,7 +86,7 @@ function handleUpdateBus($queryParams) {
 
   if ($route_id !== null){
     if (!checkRouteExists($route_id)) {
-      respond('02', 'Route not found');
+      respond('01', 'Route not found');
     }
   }
 
@@ -93,8 +94,15 @@ function handleUpdateBus($queryParams) {
   $busUpdated = updateBus($data, $bus_id, $allowedFields);
 
   if (!$busUpdated) {
-    respond('02', 'Failed to update bus');
+    respond('01', 'Failed to update bus or no changes made');
   } else {
     respond('1', 'Bus updated successfully');
   }
+}
+
+function handleDeleteBus($queryParams) {
+  $bus_id = $queryParams['bus_id'];
+
+  $deleted = deleteBus($bus_id);
+  respond('1', 'Successfully deleted bus.');
 }

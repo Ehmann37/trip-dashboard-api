@@ -56,8 +56,7 @@ function handleUpdateDriver() {
   if ($bus_id && !busExists($bus_id)) {
     respond('01', 'Bus does not exist');
   }
-
-
+  
   $allowedFields = ['license_number', 'full_name', 'contact_number', 'status'];
 
   $update = updateDriverInfo($data, $driver_id, $allowedFields);

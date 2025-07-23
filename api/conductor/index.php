@@ -20,6 +20,9 @@ switch($method) {
   case 'PUT':
     handleUpdateConductor();
     break;
+  case 'DELETE':
+    $queryParams = getQueryParams(['conductor_id']);
+    handleDeleteConductor($queryParams);
   default:
     respond('02', 'Method Not Allowed');
 }

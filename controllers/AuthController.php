@@ -1,8 +1,12 @@
 <?php
 require_once __DIR__ . '/../models/AuthModel.php';
+require_once __DIR__ . '/../models/ConductorModel.php';
 require_once __DIR__ . '/../utils/ResponseUtils.php';
+require_once __DIR__ . '/../config/db.php';
 
 function handleLoginRequest() {
+    global $pdo;
+
     $data = sanitizeInput(getRequestBody());
 
     if (empty($data['email']) || empty($data['password'])) {
@@ -22,10 +26,11 @@ function handleLoginRequest() {
             'role' => $user['role']
         ]);
 
-        if (!updateUserToken($user['user_id'], $token)) {
-            respond('01', 'Failed to update token');
-            return;
-        }
+        $stmt = $pdo->prepare("UPDATE users SET token = :token WHERE user_id = :id");
+        $stmt->execute([
+            ':token' => $token,
+            ':id'    => $user['user_id']
+        ]);
 
         $responseUser = [
             'user_id'    => $user['user_id'],
@@ -45,6 +50,8 @@ function handleLoginRequest() {
 }
 
 function handleSessionCheck($token) {
+    global $pdo;
+
     $payload = verifyJWT($token);
     if (!$payload) {
         respond('01', 'Invalid or expired token');
@@ -53,7 +60,7 @@ function handleSessionCheck($token) {
 
     $user = getUserByToken($token);
     if (!$user) {
-        respond('01', 'Token not found or revoked');
+        respond('01', 'It looks like you have logged in on another device. Please log in again.');
         return;
     }
 
@@ -65,6 +72,12 @@ function handleSessionCheck($token) {
         'role'       => $user['role'],
         'created_at' => $user['created_at']
     ];
+
+    if ($responseUser['role'] == 'conductor') {
+        $responseUser['bus_id'] = getBusIdByConductorId($user['user_id']);
+        $responseUser['driver_id'] = getDriverInfobyConductorId($user['user_id'])['driver_id'];
+        $responseUser['driver_name'] = getDriverInfobyConductorId($user['user_id'])['driver_name'];
+    }
 
     respond('1', 'User is authenticated', $responseUser);
 }

@@ -18,9 +18,12 @@ switch($method) {
     break;
 
   case 'PUT':
-    $queryParams = getQueryParams(['bus_id']);
-    handleUpdateBus($queryParams);
+    handleUpdateBus();
     break;
+
+  case 'DELETE':
+    $queryParams = getQueryParams(['bus_id']);
+    handleDeleteBus($queryParams);
   default:
     respond('02', 'Method Not Allowed');
 }

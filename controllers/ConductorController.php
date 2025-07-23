@@ -57,12 +57,12 @@ function handleUpdateConductor() {
       respond('01', 'Bus does not exist');
     }
 
-    if (busHasAssigned($bus_id, 'conductor_id')) {
+    if (busHasAssigned($bus_id, 'conductor_id') && getConductorIdByBusId($bus_id) != $conductor_id) {
       respond('01', 'Bus already has a conductor assigned');
     }
 
     if (isAssignedToAnotherBus($conductor_id, $bus_id, 'conductor_id')) {
-      respond('01', 'Conductor is already assigned to another bus. Unassign first.');
+      unassignConductor($conductor_id, $bus_id);
     }
   }
 
@@ -74,4 +74,11 @@ function handleUpdateConductor() {
   } else {
     respond('1', 'Conductor updated successfully');
   }
+}
+
+function handleDeleteConductor($queryParams) {
+  $conductor_id = $queryParams['conductor_id'];
+
+  $deleted = deleteConductor($conductor_id);
+  respond('1', 'Successfully deleted conductor.');
 }

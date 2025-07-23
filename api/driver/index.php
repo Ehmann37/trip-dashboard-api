@@ -16,6 +16,13 @@ switch($method) {
   case 'POST':
     handleAddDriver();
     break;
+
+  case 'PUT':
+    handleUpdateDriver();
+    break;
+  case 'DELETE':
+    $queryParams = getQueryParams(['driver_id']);
+    handleDeleteDriver($queryParams);
   default:
     respond('02', 'Method Not Allowed');
 }
