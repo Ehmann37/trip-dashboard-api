@@ -5,13 +5,13 @@ require_once __DIR__ . '/../utils/DBUtils.php';
 function getAllDrivers(){
   global $pdo;
   
-  $sql = "SELECT * FROM drivers where is_deleted IS NULL";
+  $sql = "SELECT * FROM drivers";
   $stmt = $pdo->prepare($sql);
   $stmt->execute();
   $drivers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   foreach ($drivers as &$driver){
-    $sql = "SELECT bus_id FROM bus where driver_id = :driver_id and is_deleted IS NULL";
+    $sql = "SELECT bus_id FROM bus where driver_id = :driver_id";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
       ':driver_id' => $driver['driver_id']

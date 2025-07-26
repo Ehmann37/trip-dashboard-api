@@ -16,19 +16,11 @@ function handleGetRoute($queryParams) {
     respond('01', 'Invalid company ID');
   }
 
-  if ($start && $end) {
-    $routes = getCurrentWeekRevenueByCompany($company_id, $start, $end);
+  $routes = getCurrentWeekRevenueByCompany($company_id);
 
-    if (!$routes) {
-      respond('01', 'No routes found for the specified date range');
-    }
-  } else{
-    
-    $routes = getCurrentWeekRevenueByCompany($company_id);
-
-    if (!$routes) {
-      respond('01', 'No routes found for the specified range');
-    }
+  if (!$routes) {
+    respond('01', 'No routes found for the specified range');
   }
+  
   respond('1', 'Routes retrieved successfully', $routes);
 }

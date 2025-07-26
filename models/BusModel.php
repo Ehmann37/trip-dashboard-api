@@ -4,12 +4,22 @@ require_once __DIR__ . '/../utils/DBUtils.php';
 
 function getAllBus(){
   global $pdo;
-  
-  $sql = "SELECT * FROM bus where is_deleted IS NULL";
+  $sql = "SELECT * FROM bus";
   $stmt = $pdo->prepare($sql);
   $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+  $bus = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  foreach ($bus as &$busItem) {
+    $sql = "SELECT * FROM trips where bus_id = :bus_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':bus_id' => $busItem['bus_id']]);
+    $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $busItem['trips'] = $trips;
+  } 
+
+  return $bus;  
+} 
 
 function addBus(array $busData){
   insertRecord('bus', $busData);

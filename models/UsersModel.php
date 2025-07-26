@@ -7,6 +7,7 @@ function getUserById($user_id) {
     $stmt = $pdo->prepare("SELECT user_id, name, email, role FROM users WHERE user_id = :id");
     $stmt->execute([':id' => $user_id]);
     $users = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $users ?: null;
 }
 
 function updateUser(int $user_id, array $fields): bool {

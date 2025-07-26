@@ -5,7 +5,7 @@ require_once __DIR__ . '/../utils/DBUtils.php';
 function getAllConductors(){
   global $pdo;
   
-  $sql = "SELECT * FROM users WHERE role = 'conductor' and is_deleted IS NULL";
+  $sql = "SELECT * FROM users WHERE role = 'conductor'";
   $stmt = $pdo->prepare($sql);
   $stmt->execute();
   $conductors = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -186,3 +186,12 @@ function getDriverInfobyConductorId($conductor_id) {
   ]);
 }
 
+function checkConductorIfActive($conductor_id): bool {
+  global $pdo;
+
+  $sql = "SELECT COUNT(*) FROM conductors WHERE conductor_id = :conductor_id AND status = 'active'";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([':conductor_id' => $conductor_id]);
+
+  return $stmt->fetchColumn() > 0;
+} 

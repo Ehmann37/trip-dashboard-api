@@ -1,10 +1,13 @@
 <?php
 require_once __DIR__ . '/../models/TripModel.php';
+require_once __DIR__ . '/../models/ConductorModel.php';
+require_once __DIR__ . '/../models/DriverModel.php';   
+require_once __DIR__ . '/../models/BusModel.php';
 require_once __DIR__ . '/../models/TicketModel.php';
 require_once __DIR__ . '/../utils/ValidationUtils.php'; 
 require_once __DIR__ . '/../utils/ResponseUtils.php';
 require_once __DIR__ . '/../utils/RequestUtils.php';
-require_once __DIR__ . '/../utils/TokenUtils.php';
+require_once __DIR__ . '/../utils/TokenUtils.php'; 
 
 
 function handleCreateTrip() {
@@ -23,7 +26,6 @@ function handleCreateTrip() {
 
         $trip_details = $decryptedData['trip_details'] ?? [];
         unset($trip_details['status']);
-        unset($trip_details['trip_id']);
 
 
         $tickets = $decryptedData['tickets'] ?? [];
@@ -35,10 +37,14 @@ function handleCreateTrip() {
     } else {
         $decryptedData = decryptData($data['token'], $KEY);
         $conductor_id = $data['conductor_id'];
+
+        if (!checkConductorExists($conductor_id) || !checkConductorIfActive($conductor_id)) {
+            respond('01', 'Conductor does not exist or is inactive');   
+            return;
+        }
     
         $trip_details = $decryptedData['trip_details'] ?? [];
         unset($trip_details['status']);
-        unset($trip_details['trip_id']);
     
     
         $tickets = $decryptedData['tickets'] ?? [];
@@ -51,12 +57,14 @@ function handleCreateTrip() {
             respond('01', 'Missing required fields: ' . implode(', ', $missing));
             return;
         }
-    
-        
-        $trip_id = addTripDetails($trip_details, $conductor_id);
-        if (!$trip_id){
-            respond('01', 'Error uploading Trip');
+        $trip_id = $trip_details['trip_id'];
+        if (checkTripExists($trip_id)) {
+            respond('01', 'Trip with this ID already exists.');
+            return;
         }
+
+        addTripDetails($trip_details, $conductor_id);
+        
     
         $ticket_uploaded = true;
         foreach ($tickets as &$ticket) {

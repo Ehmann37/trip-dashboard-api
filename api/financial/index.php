@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../middleware.php';
-require_once __DIR__ . '/../../controllers/CompanyController.php';
+require_once __DIR__ . '/../../controllers/FinancialController.php';
 require_once __DIR__ . '/../../utils/ResponseUtils.php';
 
 checkAuthorization();
@@ -10,7 +10,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch($method) {
   case 'GET':
-    $queryParams = getQueryParams(['company_id', 'start_time', 'end_time', 'type']);
+    $queryParams = getQueryParams(['company_id', 'start_time', 'end_time']);
     handleGetCompany($queryParams);
     break;
 

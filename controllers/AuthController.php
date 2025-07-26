@@ -52,11 +52,7 @@ function handleLoginRequest() {
 function handleSessionCheck($token) {
     global $pdo;
 
-    $payload = verifyJWT($token);
-    if (!$payload) {
-        respond('01', 'Invalid or expired token');
-        return;
-    }
+    
 
     $user = getUserByToken($token);
     if (!$user) {
